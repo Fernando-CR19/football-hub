@@ -1,0 +1,27 @@
+{
+  "name": "fut-assist-system",
+  "version": "1.0.0",
+  "description": "Aplicação simples em Node.js para centralizar informações das cinco principais ligas de futebol da Europa em uma única interface.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node src/app.js",
+    "start": "node src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fernando-CR19/fut-assist-system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Fernando-CR19/fut-assist-system/issues"
+  },
+  "homepage": "https://github.com/Fernando-CR19/fut-assist-system#readme",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}
