@@ -1,14 +1,19 @@
-import express from 'express';
-import 'dotenv/config';
+import express from "express";
+import "dotenv/config";
+
+import path from "path";
+import { fileURLToPath } from "url";
+
+import footballRoutes from "./routes/footballRoutes.js";
 
 const app = express();
 
 const port = process.env.PORT || 3000;
 
-app.get('/', (request, response) => {
-    response.send('Football Hub está rodando!');
-});
+const arquivo = fileURLToPath(import.meta.url);
+const pasta = path.dirname(arquivo);
 
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
-});
+app.use(express.static(path.join(pasta, "view")));
+app.use("/api", footballRoutes);
+
+app.listen(port);
