@@ -6,7 +6,8 @@ O objetivo inicial do projeto é manter a arquitetura pequena e fácil de entend
 
 - **View**: responsável pela interface exibida no navegador.
 - **Model**: responsável pela comunicação com a API externa de futebol.
-- **Controller**: responsável pelas rotas HTTP e pela comunicação entre View e Model.
+- **Controller**: responsável por receber a requisição, chamar o Model e devolver a resposta.
+- **Routes**: responsável por mapear os endpoints HTTP às funções do Controller.
 
 Não haverá autenticação de usuários, banco de dados ou outras camadas avançadas neste primeiro momento.
 
@@ -62,7 +63,7 @@ Esses elementos podem ser adicionados futuramente somente se houver necessidade.
 
 ## Arquitetura
 
-A estrutura inicial:
+Estrutura atual do projeto:
 
 ```text
 european-football-hub/
@@ -74,8 +75,13 @@ european-football-hub/
 │   ├── model/
 │   │   └── footballModel.js
 │   │
+│   ├── routes/
+│   │   └── footballRoutes.js
+│   │
 │   ├── view/
-│   │   └── index.html
+│   │   ├── index.html
+│   │   └── js/
+│   │       └── app.js
 │   │
 │   └── app.js
 │
@@ -86,53 +92,48 @@ european-football-hub/
 └── README.md
 ```
 
+A pasta `routes` foi adicionada para separar "quais URLs existem" (routes) de "o que acontece quando alguém as chama" (controller), evitando que `app.js` acumule toda a definição de endpoints conforme novos recursos forem entrando.
+
 A intenção é manter poucos arquivos para que seja fácil visualizar todo o fluxo da aplicação.
 
 ---
 
 # Responsabilidade de cada arquivo
 
-## `src/view/index.html`
+## `src/view/index.html` e `src/view/js/app.js`
 
-Responsável pelo frontend.
+Responsáveis pelo frontend.
 
-Neste arquivo ficarão inicialmente:
-
-- estrutura HTML;
-- estilos CSS;
-- JavaScript executado no navegador;
-- seleção da liga;
-- chamadas para as rotas internas do nosso servidor;
-- renderização dos jogos;
-- renderização da classificação.
+- `index.html`: estrutura HTML e elementos da página (botões, containers de jogos, etc.).
+- `js/app.js`: JavaScript executado no navegador — faz `fetch` nas rotas internas do servidor (nunca diretamente na API externa) e vai ficar responsável por renderizar jogos e classificação na tela.
 
 ## `src/model/footballModel.js`
 
-Responsável pela obtenção e organização dos dados utilizados pela aplicação.
+Responsável pela comunicação com a API externa (football-data.org), incluindo o envio da API key via header `X-Auth-Token`.
 
-Neste primeiro momento, a fonte externa dos dados ainda não está definida.
-
-Quando essa decisão for tomada, o Model será o ponto responsável por concentrar essa integração, evitando que detalhes da fonte de dados fiquem espalhados pelo Controller ou pela View.
+Hoje concentra a busca dos jogos do dia (`TodaysGames`). É o único ponto do projeto que conhece o formato de resposta da API externa — Controller e View não lidam com esse detalhe diretamente.
 
 ---
 
 ## `src/controller/footballController.js`
 
-Responsável pelas rotas da aplicação.
+Responsável por receber a requisição vinda de uma rota, chamar o Model correspondente e devolver a resposta em JSON via `response.json(...)`.
 
-Exemplo:
+## `src/routes/footballRoutes.js`
+
+Responsável por mapear os endpoints HTTP às funções do Controller. Endpoint implementado até agora:
 
 ```text
-GET /api/leagues/:leagueCode/matches
-GET /api/leagues/:leagueCode/standings
+GET /api/jogos-hoje
 ```
-
-O Controller recebe a requisição do navegador, chama o Model e devolve os dados.
 
 Fluxo conceitual:
 
 ```text
 View
+  |
+  v
+Routes
   |
   v
 Controller
@@ -150,6 +151,9 @@ Model
 Controller
   |
   v
+Routes
+  |
+  v
 View
 ```
 
@@ -159,11 +163,11 @@ View
 
 É o ponto de entrada da aplicação.
 
-Suas responsabilidades serão pequenas:
+Suas responsabilidades:
 
 - criar a aplicação Express;
-- disponibilizar a pasta da View;
-- registrar o Controller;
+- disponibilizar a pasta `view` como estática (`express.static`);
+- registrar as rotas (`app.use("/api", footballRoutes)`);
 - iniciar o servidor.
 
 Exemplo conceitual:
@@ -171,54 +175,38 @@ Exemplo conceitual:
 ```text
 app.js
   |
-  +--> disponibiliza index.html
+  +--> disponibiliza src/view (HTML + JS do navegador)
   |
-  +--> registra footballController
+  +--> registra footballRoutes em /api
   |
   +--> inicia servidor
 ```
 
 ---
 
-# Fluxo completo
+# Fluxo completo (implementado até agora)
 
-Um exemplo de interação seria:
+O usuário clica no botão "Buscar Jogos de hoje" na tela principal.
 
-O usuário escolhe:
-
-```text
-Premier League
-```
-
-A View chama:
+A View (`view/js/app.js`) chama:
 
 ```text
-GET /api/leagues/PL/matches
+GET /api/jogos-hoje
 ```
 
-O Controller recebe:
+O Router direciona para o Controller, que chama:
 
 ```text
-leagueCode = "PL"
+footballModel.TodaysGames()
 ```
 
-O Controller chama:
+O Model busca os jogos do dia na API externa:
 
 ```text
-footballModel.getMatchesByLeague("PL")
+GET https://api.football-data.org/v4/matches/
 ```
 
-O Model chama a API externa:
-
-```text
-Exemplo: GET https://api.football-data.org/v4/competitions/PL/matches
-```
-
-A resposta volta para o Controller.
-
-O Controller devolve JSON para a View.
-
-Finalmente, a View renderiza os jogos na tela.
+A resposta volta: Model → Controller → JSON → View, onde por enquanto só é exibida no console do navegador (renderização na tela ainda pendente).
 
 ---
 
@@ -250,6 +238,7 @@ Esse arquivo será utilizado para armazenar variáveis de ambiente necessárias 
 
 ```env
 PORT=3000
+API_KEY=sua_chave_da_football-data.org
 ```
 
 Novas variáveis poderão ser adicionadas posteriormente conforme as necessidades do projeto forem definidas.
@@ -281,3 +270,15 @@ A aplicação ficará disponível em:
 ```text
 http://localhost:3000
 ```
+
+---
+
+# Progresso
+
+- [x] Servidor Express servindo a View como estática
+- [x] Model buscando jogos do dia na football-data.org
+- [x] Controller e Routes conectando View → API externa
+- [x] Endpoint `GET /api/jogos-hoje` funcionando ponta a ponta
+- [ ] Renderização dos jogos na tela (atualmente só `console.log`)
+- [ ] Seleção de liga (Premier League, La Liga, Bundesliga, Serie A, Ligue 1)
+- [ ] Endpoints de classificação
