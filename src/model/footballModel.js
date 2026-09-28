@@ -1,18 +1,25 @@
-const URL = `https://api.football-data.org/v4/matches/?${getDataAtualYYYYMMDD()}`;
-
 export async function TodaysGames() {
+  const URL = `https://api.football-data.org/v4/matches?date=${getDataAtualYYYYMMDD()}`;
+
+  let response;
+
   try {
-    const res = await fetch(`${URL}`, {
+    response = await fetch(`${URL}`, {
       headers: { "X-Auth-Token": process.env.API_KEY },
     });
-    if (res.status === 200) {
-      const obj = await res.json();
-      return obj;
-    }
   } catch (error) {
-    const message = `Não foi possível buscar os jogos de hoje`;
+    const message = `Não foi possível conectar a API de futebol`;
     throw new Error(message);
   }
+
+  if (!response.ok) {
+    throw new Error(
+      `A api de futebol respondeu com status: ${response.status}`,
+    );
+  }
+
+  const jogos = await response.json();
+  return jogos;
 }
 
 function getDataAtualYYYYMMDD() {
