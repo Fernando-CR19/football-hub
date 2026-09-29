@@ -25,7 +25,16 @@
       <select class="time-favorito" onchange="saveFavoriteTeam()">
         <option value="">Escolher time favorito</option>
       </select>
+
+      <div class="seguir-time">
+        <select class="dropdown-seguir-time">
+          <option value="">Seguir outro time</option>
+        </select>
+        <button onclick="followTeam()">Seguir</button>
+      </div>
     </div>
+
+    <ul class="lista-de-times-seguidos"></ul>
 
     <p class="mensagem-de-status"></p>
     <section class="lista-de-jogos"></section>

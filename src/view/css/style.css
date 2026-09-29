@@ -128,3 +128,39 @@ select:focus {
   outline: 2px solid var(--verde-campo-escuro);
   outline-offset: 2px;
 }
+
+.lista-de-times-seguidos {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto 16px;
+  max-width: 600px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.lista-de-times-seguidos li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--branco-linha-de-campo);
+  border: 1px solid var(--verde-campo-medio);
+  border-radius: 20px;
+  padding: 4px 4px 4px 12px;
+  font-size: 0.85rem;
+}
+
+.lista-de-times-seguidos button {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 16px;
+  background-color: #c62828;
+  color: var(--branco-linha-de-campo);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.lista-de-times-seguidos button:hover {
+  background-color: #8e0000;
+}

@@ -43,20 +43,40 @@ function CreateGameCard(jogo) {
     : horarioDoJogo;
 
   const idDoTimeFavorito = localStorage.getItem("idDoTimeFavorito");
+  const idsDosTimesSeguidos = getFollowedTeamIds();
+
   const mandanteEhFavorito = String(jogo.homeTeam.id) === idDoTimeFavorito;
   const visitanteEhFavorito = String(jogo.awayTeam.id) === idDoTimeFavorito;
+
+  const mandanteEhSeguido = idsDosTimesSeguidos.includes(
+    String(jogo.homeTeam.id),
+  );
+  const visitanteEhSeguido = idsDosTimesSeguidos.includes(
+    String(jogo.awayTeam.id),
+  );
+
+  const marcadorDoMandante = mandanteEhFavorito
+    ? "⭐ "
+    : mandanteEhSeguido
+      ? "🟢 "
+      : "";
+  const marcadorDoVisitante = visitanteEhFavorito
+    ? "⭐ "
+    : visitanteEhSeguido
+      ? "🟢 "
+      : "";
 
   cardDoJogo.innerHTML = `
     <p class="card-campeonato">${jogo.competition.name}</p>
     <div class="card-confronto">
       <div class="card-time">
         <img src="${jogo.homeTeam.crest}" alt="Escudo do ${jogo.homeTeam.name}" />
-        <span>${mandanteEhFavorito ? "⭐ " : ""}${jogo.homeTeam.shortName || jogo.homeTeam.name}</span>
+        <span>${marcadorDoMandante}${jogo.homeTeam.shortName || jogo.homeTeam.name}</span>
       </div>
       <strong class="card-centro">${textoDoCentro}</strong>
       <div class="card-time">
         <img src="${jogo.awayTeam.crest}" alt="Escudo do ${jogo.awayTeam.name}" />
-        <span>${visitanteEhFavorito ? "⭐ " : ""}${jogo.awayTeam.shortName || jogo.awayTeam.name}</span>
+        <span>${marcadorDoVisitante}${jogo.awayTeam.shortName || jogo.awayTeam.name}</span>
       </div>
     </div>
     <p class="card-status">${jogo.status}</p>
@@ -103,12 +123,18 @@ async function loadTeamList() {
   const times = await response.json();
 
   const seletorDeTimeFavorito = document.querySelector(".time-favorito");
+  const seletorParaSeguirTime = document.querySelector(".dropdown-seguir-time");
 
   times.forEach((time) => {
-    const opcaoDoTime = document.createElement("option");
-    opcaoDoTime.value = time.id;
-    opcaoDoTime.textContent = time.shortName || time.name;
-    seletorDeTimeFavorito.appendChild(opcaoDoTime);
+    const opcaoParaFavorito = document.createElement("option");
+    opcaoParaFavorito.value = time.id;
+    opcaoParaFavorito.textContent = time.shortName || time.name;
+    seletorDeTimeFavorito.appendChild(opcaoParaFavorito);
+
+    const opcaoParaSeguir = document.createElement("option");
+    opcaoParaSeguir.value = time.id;
+    opcaoParaSeguir.textContent = time.shortName || time.name;
+    seletorParaSeguirTime.appendChild(opcaoParaSeguir);
   });
 
   const idDoTimeFavoritoSalvo = localStorage.getItem("idDoTimeFavorito");
@@ -122,5 +148,73 @@ function saveFavoriteTeam() {
   localStorage.setItem("idDoTimeFavorito", idDoTimeEscolhido);
 }
 
+function followTeam() {
+  const seletorParaSeguirTime = document.querySelector(".dropdown-seguir-time");
+  const idDoTimeEscolhido = seletorParaSeguirTime.value;
+
+  if (idDoTimeEscolhido === "") {
+    return;
+  }
+
+  const idsDosTimesSeguidos = getFollowedTeamIds();
+
+  if (idsDosTimesSeguidos.includes(idDoTimeEscolhido)) {
+    return;
+  }
+
+  idsDosTimesSeguidos.push(idDoTimeEscolhido);
+  localStorage.setItem(
+    "idsDosTimesSeguidos",
+    JSON.stringify(idsDosTimesSeguidos),
+  );
+
+  seletorParaSeguirTime.value = "";
+  showFollowedTeams();
+}
+
+function getFollowedTeamIds() {
+  const idsSalvos = localStorage.getItem("idsDosTimesSeguidos");
+  return idsSalvos ? JSON.parse(idsSalvos) : [];
+}
+
+function showFollowedTeams() {
+  const containerDaLista = document.querySelector(".lista-de-times-seguidos");
+  containerDaLista.innerHTML = "";
+
+  const idsDosTimesSeguidos = getFollowedTeamIds();
+
+  idsDosTimesSeguidos.forEach((idDoTime) => {
+    const opcaoCorrespondente = document.querySelector(
+      `.dropdown-seguir-time option[value="${idDoTime}"]`,
+    );
+    const nomeDoTime = opcaoCorrespondente
+      ? opcaoCorrespondente.textContent
+      : idDoTime;
+
+    const itemDaLista = document.createElement("li");
+    itemDaLista.innerHTML = `
+      ${nomeDoTime}
+      <button onclick="unfollowTeam('${idDoTime}')">Remover</button>
+    `;
+
+    containerDaLista.appendChild(itemDaLista);
+  });
+}
+
+function unfollowTeam(idDoTime) {
+  const idsDosTimesSeguidos = getFollowedTeamIds();
+  const idsSemOTimeRemovido = idsDosTimesSeguidos.filter(
+    (id) => id !== idDoTime,
+  );
+
+  localStorage.setItem(
+    "idsDosTimesSeguidos",
+    JSON.stringify(idsSemOTimeRemovido),
+  );
+
+  showFollowedTeams();
+}
+
 LoadTodaysGames();
 loadTeamList();
+showFollowedTeams();
