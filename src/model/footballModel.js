@@ -1,8 +1,7 @@
 import { readFile } from "fs/promises";
 
 export async function TodaysGames() {
-  //const URL = `https://api.football-data.org/v4/matches?date=${getDataAtualYYYYMMDD()}`;
-  const URL = `https://api.football-data.org/v4/matches?date=2026-10-07`;
+  const URL = `https://api.football-data.org/v4/matches?date=${getDataAtualYYYYMMDD()}`;
 
   let response;
 
