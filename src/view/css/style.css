@@ -1,0 +1,106 @@
+:root {
+  --verde-campo-escuro: #1b5e20;
+  --verde-campo-medio: #2e7d32;
+  --verde-campo-claro: #e8f5e9;
+  --branco-linha-de-campo: #ffffff;
+  --texto-escuro: #1f2d1f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px 16px;
+  font-family: system-ui, sans-serif;
+  background-color: var(--verde-campo-claro);
+  color: var(--texto-escuro);
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 16px;
+  color: var(--verde-campo-escuro);
+}
+
+button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--verde-campo-medio);
+  color: var(--branco-linha-de-campo);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: var(--verde-campo-escuro);
+}
+
+.mensagem-de-status {
+  margin: 16px 0;
+  font-weight: bold;
+}
+
+.lista-de-jogos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.card-do-jogo {
+  background-color: var(--branco-linha-de-campo);
+  border: 1px solid var(--verde-campo-medio);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.card-campeonato {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--verde-campo-medio);
+  text-transform: uppercase;
+}
+
+.card-confronto {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.card-time img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.card-time span {
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.card-centro {
+  font-size: 1.1rem;
+  color: var(--verde-campo-escuro);
+  white-space: nowrap;
+}
+
+.card-status {
+  margin: 12px 0 0;
+  font-size: 0.75rem;
+  color: #666;
+  text-align: center;
+}
