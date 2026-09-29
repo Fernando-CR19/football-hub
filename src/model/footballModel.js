@@ -1,5 +1,8 @@
+import { readFile } from "fs/promises";
+
 export async function TodaysGames() {
-  const URL = `https://api.football-data.org/v4/matches?date=${getDataAtualYYYYMMDD()}`;
+  // const URL = `https://api.football-data.org/v4/matches?date=${getDataAtualYYYYMMDD()}`;
+  const URL = `https://api.football-data.org/v4/matches?date=2026-10-10`;
 
   let response;
 
@@ -29,4 +32,10 @@ function getDataAtualYYYYMMDD() {
   const dia = String(hoje.getDate()).padStart(2, "0");
 
   return `${ano}-${mes}-${dia}`;
+}
+
+export async function TeamList() {
+  const conteudoDoArquivo = await readFile("./times.json", "utf-8");
+  const times = JSON.parse(conteudoDoArquivo);
+  return times;
 }

@@ -1,3 +1,5 @@
+let jogosDeHoje = [];
+
 async function getTodayGames() {
   const response = await fetch("/api/jogos-hoje");
   if (!response.ok) {
@@ -14,7 +16,8 @@ async function LoadTodaysGames() {
   messageStatus.textContent = "Carregando...";
   try {
     const jogos = await getTodayGames();
-    ShowGamesScreen(jogos.matches);
+    jogosDeHoje = jogos.matches;
+    ShowGamesScreen(jogosDeHoje);
   } catch (error) {
     document.querySelector(".lista-de-jogos").innerHTML = "";
     messageStatus.textContent = error.message;
@@ -39,17 +42,21 @@ function CreateGameCard(jogo) {
     ? `${placarDoMandante} x ${placarDoVisitante}`
     : horarioDoJogo;
 
+  const idDoTimeFavorito = localStorage.getItem("idDoTimeFavorito");
+  const mandanteEhFavorito = String(jogo.homeTeam.id) === idDoTimeFavorito;
+  const visitanteEhFavorito = String(jogo.awayTeam.id) === idDoTimeFavorito;
+
   cardDoJogo.innerHTML = `
     <p class="card-campeonato">${jogo.competition.name}</p>
     <div class="card-confronto">
       <div class="card-time">
         <img src="${jogo.homeTeam.crest}" alt="Escudo do ${jogo.homeTeam.name}" />
-        <span>${jogo.homeTeam.shortName || jogo.homeTeam.name}</span>
+        <span>${mandanteEhFavorito ? "⭐ " : ""}${jogo.homeTeam.shortName || jogo.homeTeam.name}</span>
       </div>
       <strong class="card-centro">${textoDoCentro}</strong>
       <div class="card-time">
         <img src="${jogo.awayTeam.crest}" alt="Escudo do ${jogo.awayTeam.name}" />
-        <span>${jogo.awayTeam.shortName || jogo.awayTeam.name}</span>
+        <span>${visitanteEhFavorito ? "⭐ " : ""}${jogo.awayTeam.shortName || jogo.awayTeam.name}</span>
       </div>
     </div>
     <p class="card-status">${jogo.status}</p>
@@ -76,4 +83,44 @@ function ShowGamesScreen(listaDeJogos) {
   });
 }
 
+function filterByLeague() {
+  const ligaEscolhida = document.querySelector(".filtro-de-liga").value;
+
+  if (ligaEscolhida === "TODAS") {
+    ShowGamesScreen(jogosDeHoje);
+    return;
+  }
+
+  const jogosDaLigaEscolhida = jogosDeHoje.filter(
+    (jogo) => jogo.competition.code === ligaEscolhida,
+  );
+
+  ShowGamesScreen(jogosDaLigaEscolhida);
+}
+
+async function loadTeamList() {
+  const response = await fetch("/api/times");
+  const times = await response.json();
+
+  const seletorDeTimeFavorito = document.querySelector(".time-favorito");
+
+  times.forEach((time) => {
+    const opcaoDoTime = document.createElement("option");
+    opcaoDoTime.value = time.id;
+    opcaoDoTime.textContent = time.shortName || time.name;
+    seletorDeTimeFavorito.appendChild(opcaoDoTime);
+  });
+
+  const idDoTimeFavoritoSalvo = localStorage.getItem("idDoTimeFavorito");
+  if (idDoTimeFavoritoSalvo) {
+    seletorDeTimeFavorito.value = idDoTimeFavoritoSalvo;
+  }
+}
+
+function saveFavoriteTeam() {
+  const idDoTimeEscolhido = document.querySelector(".time-favorito").value;
+  localStorage.setItem("idDoTimeFavorito", idDoTimeEscolhido);
+}
+
 LoadTodaysGames();
+loadTeamList();

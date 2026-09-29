@@ -8,7 +8,24 @@
   </head>
   <body>
     <h1>Bem vindo ao Football-hub</h1>
-    <button onclick="LoadTodaysGames()">Atualizar</button>
+
+    <div class="barra-de-controles">
+      <button onclick="LoadTodaysGames()">Atualizar</button>
+
+      <select class="filtro-de-liga" onchange="filterByLeague()">
+        <option value="TODAS">Todas as ligas</option>
+        <option value="PL">Premier League</option>
+        <option value="PD">La Liga</option>
+        <option value="FL1">Ligue 1</option>
+        <option value="SA">Serie A</option>
+        <option value="BL1">Bundesliga</option>
+        <option value="BSA">Brasileirão Série A</option>
+      </select>
+
+      <select class="time-favorito" onchange="saveFavoriteTeam()">
+        <option value="">Escolher time favorito</option>
+      </select>
+    </div>
 
     <p class="mensagem-de-status"></p>
     <section class="lista-de-jogos"></section>

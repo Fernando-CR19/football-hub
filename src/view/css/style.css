@@ -104,3 +104,27 @@ button:hover {
   color: #666;
   text-align: center;
 }
+
+.barra-de-controles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+select {
+  padding: 8px 12px;
+  border: 1px solid var(--verde-campo-medio);
+  border-radius: 8px;
+  background-color: var(--branco-linha-de-campo);
+  color: var(--texto-escuro);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: 2px solid var(--verde-campo-escuro);
+  outline-offset: 2px;
+}
